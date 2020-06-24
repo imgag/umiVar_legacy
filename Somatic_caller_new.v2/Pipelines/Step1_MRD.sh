@@ -79,7 +79,7 @@ if [[ ! -z "$BED" ]];then
             -q $MQ \
             -Q 1 \
             -x \
-            $i | python $SCRIPTS/pileup2tsv_08_01_19.py --pileup - -o $NAME2 --minBQ $BQ -m 10 &
+            $i 2> /dev/null | python $SCRIPTS/pileup2tsv_08_01_19.py --pileup - -o $NAME2 --minBQ $BQ -m 10 &
     done
     wait
 else
@@ -89,7 +89,7 @@ else
             -q $MQ \
             -Q 1 \
             -x \
-            $i | python $SCRIPTS/pileup2tsv_08_01_19.py --pileup - -o $NAME2 --minBQ $BQ -m 10 &
+            $i 2> /dev/null | python $SCRIPTS/pileup2tsv_08_01_19.py --pileup - -o $NAME2 --minBQ $BQ -m 10 &
     done
     wait
 fi
