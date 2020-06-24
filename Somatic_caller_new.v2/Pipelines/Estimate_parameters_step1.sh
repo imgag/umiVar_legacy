@@ -1,12 +1,13 @@
 #!/bin/bash
 
-SAMTOOLS=/mnt/users/ahmuyaf1/programs/samtools-1.3//samtools
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+SAMTOOLS=samtools
 
 ####https://github.com/nhoffman/argparse-bash
 ##wget https://raw.githubusercontent.com/nhoffman/argparse-bash/master/argparse.bash
 ##chmod +x argparse.bash
-ARGPARSE=/mnt/users/ahmuyaf1/programs/argparse/argparse.bash
+ARGPARSE=$DIR/argparse.bash
 source $ARGPARSE || exit 1
 argparse "$@" <<EOF || exit 1
 parser.add_argument('-bam','--bam', required=True, help='Tumor bam file')
@@ -28,7 +29,7 @@ echo Minimum base quality: "$BQ"
 #REF=/mnt/share/data/genomes/GRCh37.fa
 #BED=/mnt/share/data/enrichment/HNSCC_cfDNA_hotspot_2018_12_20.bed
 
-SCRIPTS=/mnt/users/ahmuyaf1/scripts/Somatic_caller_new.v2/Tools
+SCRIPTS=$DIR/../Tools
 OUT=$(dirname $OUT_FILE)
 
 mkdir -p $OUT
