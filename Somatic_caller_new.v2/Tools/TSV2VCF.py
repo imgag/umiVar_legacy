@@ -232,62 +232,62 @@ with open(FILE) as f1:
             if ("CHROM" in form):
                 CHROMi=[i for i, x in enumerate(form) if x == "CHROM"][0]
             else:
-                print "CHROM not present in vcf"
+                print("CHROM not present in vcf")
                 break
 
             if ("POS" in form):
                 POSi=[i for i, x in enumerate(form) if x == "POS"][0]
             else:
-                print "POS not present in vcf"
+                print("POS not present in vcf")
                 break
 
             if ("REF" in form):
                 REFi=[i for i, x in enumerate(form) if x == "REF"][0]
             else:
-                print "REF not present in vcf"
+                print("REF not present in vcf")
                 break
 
             # Coverage 
             if ("DP" in form):
                 DPi=[i for i, x in enumerate(form) if x == "DP"][0]
             else:
-                print "DP not present in vcf"
+                print("DP not present in vcf")
                 break
             
             if ("DP_HQ" in form):
                 DP_HQi=[i for i, x in enumerate(form) if x == "DP_HQ"][0]
             else:
-                print "DP_HQ not present in vcf"
+                print("DP_HQ not present in vcf")
                 break
             
             if ("REFf" in form):
                 REFfi=[i for i, x in enumerate(form) if x == "REFf"][0]
             else:
-                print "REFf not present in vcf"
+                print("REFf not present in vcf")
                 break
  
             if ("REFr" in form):
                 REFri=[i for i, x in enumerate(form) if x == "REFr"][0]
             else:
-                print "REFr not present in vcf"
+                print("REFr not present in vcf")
                 break
             
             if ("DIST" in form):
                 DISTi=[i for i, x in enumerate(form) if x == "DIST"][0]
             else:
-                print "DIST not present in vcf"
+                print("DIST not present in vcf")
                 break
 
             if ("MM" in form):
                 MMi=[i for i, x in enumerate(form) if x == "MM"][0]
             else:
-                print "MM not present in vcf"
+                print("MM not present in vcf")
                 break
 
             if ("CALL" in form):
                 CALLi=[i for i, x in enumerate(form) if x == "CALL"][0]
             else:
-                print "CALL not present in vcf"
+                print("CALL not present in vcf")
                 break
 
             VCF_HEADER_l = "#"+'\t'.join(VCF_HEADER)            

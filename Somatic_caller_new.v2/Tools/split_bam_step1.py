@@ -10,7 +10,7 @@ args = ''
 try:
 	args = parser.parse_args()
 except IOError as io:
-	print io
+	print(io)
 	sys.exit('Error reading parameters.')
 
 
@@ -44,7 +44,7 @@ while 1:
 
 	# Get read
 	try:
-		read = infile.next()
+		read = next(infile)
 	except StopIteration:
 		break
 	
