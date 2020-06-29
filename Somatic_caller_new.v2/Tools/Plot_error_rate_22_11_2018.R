@@ -30,7 +30,6 @@ bc4 <- args$bc4_file
 
 OUTF <- args$out_folder
 
-setwd(OUTF)
 
 
 #### SOME FUNCTIONS
@@ -222,6 +221,7 @@ PLOT_ER_NT <- ggplot(ER_NT_GROUP_PASS,aes(x=Correction_level,y=ER, color = Chang
 
 
 ### PLOTING INFORMATION ERROR RATES
+setwd(OUTF)
 ggsave(file="Coverage.pdf",plot=COV_PLOT, useDingbats=FALSE)
 ggsave(file="Error_rates_per_nucleotide.pdf",plot=PLOT_ER_NT, useDingbats=FALSE)
 ggsave(file='Error_rates.pdf',plot=PLOT_ER, useDingbats=FALSE)

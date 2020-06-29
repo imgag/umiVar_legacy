@@ -19,7 +19,6 @@ print (OUTF)
 
 
 # Ploting
-setwd(OUTF)
 
 GROUP1 <- as.data.frame(fread(group1,sep = '\t'))
 colnames(GROUP1) <- c("COUNT")
@@ -36,6 +35,7 @@ GROUP_PLOT1 <- ggplot(GROUP1,aes(x=COUNT))+
   xlab("# Duplicates")
 
 
+setwd(OUTF)
 ggsave(file='DUPLICATES_PER_BARCODE_GROUP.pdf',plot=GROUP_PLOT1,useDingbats=FALSE)
 
 
