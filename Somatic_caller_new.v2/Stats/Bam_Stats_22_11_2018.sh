@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 #REF=/mnt/share/data/genomes/GRCh37.fa
 #BED=/mnt/share/data/enrichment/hpHSHNSCC_v1_2016_04_07.bed 
 #BAM1=/mnt/users/ahmuyaf1/projects/ctDNA/Haloplex/HNSCC/GS160614_01/GS160614_01_before_dedup_filtered.bam
@@ -11,12 +13,12 @@
 # Software
 SAMTOOLS=/mnt/share/opt/samtools-1.9/samtools
 BAMREADCOUNT=/mnt/share/opt/bam-readcount/bin/bam-readcount
-ARGPARSE=/mnt/users/ahmuyaf1/programs/argparse/argparse.bash
-BEDTOOLS=/mnt/share/opt/bedtools2/bin//bedtools
+ARGPARSE=${DIR}/../Pipelines/argparse.bash
+BEDTOOLS=/mnt/share/opt/bedtools2/bin/bedtools
 PAIRTOBED=/mnt/share/opt/bedtools2/bin/pairToBed
 
 # In-house scripts
-SCRIPTS=/mnt/users/ahmuyaf1/scripts/Somatic_caller_new.v2/Tools
+SCRIPTS=${DIR}/../Tools
 
 # Parameters needed for running pipeline
 source $ARGPARSE || exit 1
