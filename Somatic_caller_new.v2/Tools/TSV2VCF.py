@@ -338,6 +338,7 @@ with open(FILE) as f1:
                 
                 FILTER = []
                 ALT = []
+                ALT_COUNT_all = []
                 sample = []
                 
                 n = len(ref)
@@ -355,6 +356,7 @@ with open(FILE) as f1:
                         ALTtemp[0] = ALTi
                         ALTi = ''.join(ALTtemp)
                         ALT.append(ALTi)
+                        ALT_COUNT_all.append(ALT_COUNT)
                         
                         if (int(ALT_COUNT) > 0):
                             GT = ALTi
@@ -375,6 +377,7 @@ with open(FILE) as f1:
                         
                         ALTi = alt[count]
                         ALT.append(ALTi)
+                        ALT_COUNT_all.append(ALT_COUNT)
                         
                         if (int(ALT_COUNT) > 0):
                             GT = ALTi
@@ -409,13 +412,15 @@ with open(FILE) as f1:
                 sample = '|'.join(sample)
                 VCF_LINE = ['\t'.join(COMMON), FILTER, ';'.join(INFO), ':'.join(FORMAT), sample]
                 VCF_LINE = '\t'.join(VCF_LINE)
-                if (int(ALT_COUNT) > 0):
-                    OUT_vcf.write(VCF_LINE + '\n')
                 
                 # TSV line
-                TSV_LINE = [str(CHROM), str(POS), str(ref[0]), str(alt[0]), Seq_up, Seq_down, str(DP_HQ), str(REFt), str(ALT_COUNT), str(AB), ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq, FILTER]
+                ALT_COUNT_all = ','.join(ALT_COUNT_all)
+                TSV_LINE = [str(CHROM), str(POS), str(REF), str(ALT), Seq_up, Seq_down, str(DP_HQ), str(REFt), str(ALT_COUNT_all), str(AB), ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq, FILTER]
                 TSV_LINE = '\t'.join(TSV_LINE)
-                OUT_tsv.write(TSV_LINE + '\n')
+
+                if (int(ALT_COUNT) > 0):
+                    OUT_vcf.write(VCF_LINE + '\n')
+                    OUT_tsv.write(TSV_LINE + '\n')
                 
             else:
                 
@@ -450,13 +455,13 @@ with open(FILE) as f1:
                 # VCF variant line
                 VCF_LINE = ['\t'.join(COMMON), FILTER, ';'.join(INFO), ':'.join(FORMAT), ':'.join(sample)]
                 VCF_LINE = '\t'.join(VCF_LINE)
-                if (int(ALT_COUNT) > 0):
-                    OUT_vcf.write(VCF_LINE + '\n')
                 
                 # TSV line
                 TSV_LINE = [str(CHROM), str(POS), str(ref[0]), str(alt[0]), Seq_up, Seq_down, str(DP_HQ), str(REFt), str(ALT_COUNT), str(AB), ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq, FILTER]
                 TSV_LINE = '\t'.join(TSV_LINE)
-                OUT_tsv.write(TSV_LINE + '\n')
+                if (int(ALT_COUNT) > 0):
+                    OUT_vcf.write(VCF_LINE + '\n')
+                    OUT_tsv.write(TSV_LINE + '\n')
 
 OUT_vcf.close()
 OUT_tsv.close()
