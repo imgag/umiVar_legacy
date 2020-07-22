@@ -49,10 +49,10 @@ date
 
 # Sample name and main directory to save data
 MAIN_FOLDER=$OUT_FOLDER
-TEMP=$MAIN_FOLDER/temp
+TEMP=$MAIN_FOLDER/temp_stats
 mkdir -p $MAIN_FOLDER
 
-mkdir -p $MAIN_FOLDER/temp
+mkdir -p $TEMP
 
 # If not BED file provided
 if [ -z "$BED" ];then
@@ -99,23 +99,24 @@ date
 echo
 
 # Spliting the condenset bam file into multiples depending on the duplicate count
-BAM2=$MAIN_FOLDER/temp/intersected.bam
-$SAMTOOLS sort -n $BAM -o $MAIN_FOLDER/temp/sortedn.bam
-$PAIRTOBED -abam $MAIN_FOLDER/temp/sortedn.bam -f 0.1 -b $BED2 | $SAMTOOLS sort -o $BAM2 - 
+BAM2=$TEMP/intersected.bam
+$SAMTOOLS sort -n $BAM -o $TEMP/sortedn.bam
+#$PAIRTOBED -abam $TEMP/sortedn.bam -f 0.1 -b $BED2 | $SAMTOOLS sort -o $BAM2 - 
+$PAIRTOBED -abam $TEMP/sortedn.bam -b $BED2 | $SAMTOOLS sort -o $BAM2 - 
 
 $SAMTOOLS index $BAM2
 
 # Split bam file by barcode
-echo python $SCRIPTS/split_bam_step1.py -i $BAM2 -o $MAIN_FOLDER/temp/DEDUPLICATED 
-python $SCRIPTS/split_bam_step1.py -i $BAM2 -o $MAIN_FOLDER/temp/DEDUPLICATED 
+echo python $SCRIPTS/split_bam_step1.py -i $BAM2 -o $TEMP/DEDUPLICATED 
+python $SCRIPTS/split_bam_step1.py -i $BAM2 -o $TEMP/DEDUPLICATED 
 
 # Index new split bam files
-for i in $MAIN_FOLDER/temp/*DP*.bam; do
+for i in $TEMP/*DP*.bam; do
     $SAMTOOLS index $i
 done
 
 # Getting TSV
-for i in $MAIN_FOLDER/temp/*DP*.bam; do
+for i in $TEMP/*DP*.bam; do
     NAME2=$(echo $i | sed 's/bam$/tsv/')
     $SAMTOOLS mpileup -d 9999999 -f $REF \
         -l $BED2 \
@@ -135,26 +136,26 @@ echo
 
 # Ploting barcode distributions
 mkdir -p $MAIN_FOLDER/PLOTS
-echo Rscript $SCRIPTS/Barcode_group_distribution.r -bd $MAIN_FOLDER/temp/DEDUPLICATED.txt \
+echo Rscript $SCRIPTS/Barcode_group_distribution.r -bd $TEMP/DEDUPLICATED.txt \
     -out $MAIN_FOLDER/PLOTS
     
-Rscript $SCRIPTS/Barcode_group_distribution.r -bd $MAIN_FOLDER/temp/DEDUPLICATED.txt \
+Rscript $SCRIPTS/Barcode_group_distribution.r -bd $TEMP/DEDUPLICATED.txt \
     -out $MAIN_FOLDER/PLOTS &
 
 # Error rates
-echo Rscript $SCRIPTS/Plot_error_rate_22_11_2018.R -bc1 $MAIN_FOLDER/temp/DEDUPLICATED_DP1.tsv \
-    -bc2 $MAIN_FOLDER/temp/DEDUPLICATED_DP2.tsv \
-    -bc3 $MAIN_FOLDER/temp/DEDUPLICATED_DP3.tsv \
-    -bc4 $MAIN_FOLDER/temp/DEDUPLICATED_DP4.tsv \
+echo Rscript $SCRIPTS/Plot_error_rate_22_11_2018.R -bc1 $TEMP/DEDUPLICATED_DP1.tsv \
+    -bc2 $TEMP/DEDUPLICATED_DP2.tsv \
+    -bc3 $TEMP/DEDUPLICATED_DP3.tsv \
+    -bc4 $TEMP/DEDUPLICATED_DP4.tsv \
     -out $MAIN_FOLDER/PLOTS
-Rscript $SCRIPTS/Plot_error_rate_22_11_2018.R -bc1 $MAIN_FOLDER/temp/DEDUPLICATED_DP1.tsv \
-    -bc2 $MAIN_FOLDER/temp/DEDUPLICATED_DP2.tsv \
-    -bc3 $MAIN_FOLDER/temp/DEDUPLICATED_DP3.tsv \
-    -bc4 $MAIN_FOLDER/temp/DEDUPLICATED_DP4.tsv \
+Rscript $SCRIPTS/Plot_error_rate_22_11_2018.R -bc1 $TEMP/DEDUPLICATED_DP1.tsv \
+    -bc2 $TEMP/DEDUPLICATED_DP2.tsv \
+    -bc3 $TEMP/DEDUPLICATED_DP3.tsv \
+    -bc4 $TEMP/DEDUPLICATED_DP4.tsv \
     -out $MAIN_FOLDER/PLOTS &
 
 wait 
-##rm -f -r $MAIN_FOLDER/temp
+##rm -f -r $TEMP
 
 echo "END, bye!!!"
 date
