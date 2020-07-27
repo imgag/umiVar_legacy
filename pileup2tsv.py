@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import argparse
 import numpy
@@ -437,8 +437,8 @@ def pileup_INFO(line):
     T = [CHANGE, str(alt_count_total['T']), str(alt_counts['T'.upper()]), str(alt_counts['T'.lower()]), str(alt_qual_total['T']), '0']
     T = '\t'.join(T)
     
-    ## A counts
-    CHANGE = str(ref_base.upper())+'>C'
+    ## G counts
+    CHANGE = str(ref_base.upper())+'>G'
     G = [CHANGE, str(alt_count_total['G']), str(alt_counts['G'.upper()]), str(alt_counts['G'.lower()]), str(alt_qual_total['G']), '0']
     G = '\t'.join(G)
     
