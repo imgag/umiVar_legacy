@@ -1,6 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 import argparse
 import time
+from pathlib import Path
+
 import scipy.stats
 import numpy
 import pybedtools
@@ -152,7 +155,7 @@ SAMPLE = args.tumorid
 REF = args.reference
 out = args.outfile
 
-out2 = out + '.tsv'
+out2 = str(Path(out).with_suffix('.tsv'))
 
 min_COV = args.min_COV
 min_AC = args.min_AC
@@ -468,7 +471,7 @@ OUT_tsv.close()
 
 ## MRD printing
 if (args.mrd == 1):
-    out3 = out + '.mrd'
+    out3 = str(Path(out).with_suffix('.mrd'))
     OUT_mrd = open(out3,'w')
     
     # Header
