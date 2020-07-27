@@ -185,13 +185,14 @@ ER$FILTER <- (ER$DP > 1e5)*1
 FILTER <- ER[,c('Correction_level', 'FILTER')]
 
 ER_PASS <- ER[ER$FILTER == 1,]
-
+ymax <- round(max(ER_PASS$ER)*1.25,digits = 5)+2E-5
+ymax <- ifelse(is.finite(ymax), ymax, 1e-2)
 PLOT_ER <- ggplot(ER_PASS,aes(x=Correction_level,y=ER))+
   geom_point(color="blue",size=2)+
   scale_x_discrete(limits=ER$Correction_level)+
   theme_bw()+
   #ylim(min(ER$Error_rate)/5,max(ER$Error_rate)*1.25)+
-  scale_y_continuous(breaks = seq(0,round(max(ER_PASS$ER)*1.25,digits = 5)+2E-5, 2.5E-5))+
+  scale_y_continuous(breaks = seq(0,ymax, 2.5E-5))+
   ggtitle("Error rate per analysis type")+
   #theme(axis.text.x = element_text(angle = 45, hjust = 1))+
   xlab("Error correction type")+
@@ -209,9 +210,11 @@ ER_NT_GROUP$FILTER <- (ER_NT_GROUP$DP_REF > 1e5)*1
 
 ER_NT_GROUP_PASS <- ER_NT_GROUP[ER_NT_GROUP$FILTER == 1,]
 
+ymax <- round(max(ER_NT_GROUP_PASS$ER),digits = 5)+2E-5
+ymax <- ifelse(is.finite(ymax), ymax, 1e-2)
 PLOT_ER_NT <- ggplot(ER_NT_GROUP_PASS,aes(x=Correction_level,y=ER, color = Change, group = Change))+
   geom_point(size = 2) + geom_line()+
-  scale_y_continuous(breaks = seq(0,round(max(ER_NT_GROUP_PASS$ER),digits = 5)+2E-5, 5E-5))+
+  scale_y_continuous(breaks = seq(0,ymax, 5E-5))+
   scale_x_discrete(limits=ER$Correction_level) +
   theme_bw()+
   ggtitle("Error rate per analysis type")+

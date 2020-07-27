@@ -21,10 +21,9 @@ print (OUTF)
 # Ploting
 
 GROUP1 <- as.data.frame(fread(group1,sep = '\t'))
-colnames(GROUP1) <- c("COUNT")
-
-GROUP_PLOT1 <- ggplot(GROUP1,aes(x=COUNT))+
-  geom_bar(aes(y = (..count..)/sum(..count..))) + 
+GROUP1$frac <- GROUP1$count / sum(GROUP1$count)
+GROUP_PLOT1 <- ggplot(GROUP1,aes(x=dp, y = frac))+
+  geom_col() + 
   ## scale_y_continuous(labels = percent_format()) #version 3.0.9
   scale_y_continuous(limits = c(0,1), breaks= seq(0,1,0.1)) +
   #scale_x_continuous(breaks = seq(1, 10, 1)) +
@@ -41,18 +40,8 @@ ggsave(file='DUPLICATES_PER_BARCODE_GROUP.pdf',plot=GROUP_PLOT1,useDingbats=FALS
 
 # Some statistics
 
-STATISTICS <- data.frame(mean(GROUP1$COUNT),median(GROUP1$COUNT))
+STATISTICS <- data.frame(mean(GROUP1$count),median(GROUP1$count))
 colnames(STATISTICS) <- c("FAMILY(Mean)","FAMILY(Median)")
 
 write.table(x = STATISTICS, file="BARCODE_STATS.txt",row.names = F,col.names = T,sep='\t', quote = F)
 
-
-# Summary values
-
-COUNT <- as.data.frame(table(GROUP1$COUNT))
-colnames(COUNT) <- c("BARCODE_GROUP","COUNT")
-#COUNT$Original_duplicates <- as.numeric(COUNT$BARCODE_GROUP) * as.numeric(COUNT$COUNT)
-
-COUNT$Freq <- COUNT$COUNT/sum(COUNT$COUNT) 
-
-write.table(x = COUNT, file="DUPLICATES_PER_BARCODE_GROUP.txt",row.names = F,col.names = T,sep='\t', quote = F)

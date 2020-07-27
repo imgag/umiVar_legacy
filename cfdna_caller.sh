@@ -46,13 +46,13 @@ out_dir=$(dirname $OUT_FILE)
 mkdir -p $out_dir
 temp=$(mktemp -p $out_dir -d cfdna_tmp.XXXX)
 
-python3 $DIR/split_bam.py --infile $BAM --outprefix "${temp}/dedup"
+python3 $DIR/split_bam.py --infile $BAM --outprefix "${temp}/dedup" --freq "${temp}/dp_freq.tsv"
 for f in ${temp}/dedup*.bam; do
     samtools index $f
     f_tsv="${f%.bam}.tsv"
-    # TODO handle -l BED optional
+    # TODO handle -l BED as optional
     samtools mpileup \
-        -d 9999999 -f $REF -l $BED -Q 1 -x $f 2> /dev/null | \
+        -d 0 -f $REF -l $BED -Q 1 -x $f 2> /dev/null | \
         python3 $DIR/pileup2tsv.py --pileup - --variantf $f_tsv --minBQ $BQ --mindepth 10
     rm $f ${f}.bai
 done
@@ -61,7 +61,7 @@ if [[ -z "$PARAM" ]]; then
     # TODO check for sufficient bases in target file
     f_params="${temp}/parameters.txt"
 
-    Rscript $DIR/Parameters_step1.r \
+    Rscript $DIR/Parameters_step1.R \
         -t1 "${temp}/dedup_DP1.tsv" \
         -t2 "${temp}/dedup_DP2.tsv" \
         -t3 "${temp}/dedup_DP3.tsv" \
@@ -71,7 +71,7 @@ else
     f_params=$PARAM
 fi
 
-Rscript $DIR/Combine_functions_step1.r \
+Rscript $DIR/Combine_functions_step1.R \
     -t1 "${temp}/dedup_DP1.tsv" \
     -t2 "${temp}/dedup_DP2.tsv" \
     -t3 "${temp}/dedup_DP3.tsv" \
@@ -90,3 +90,14 @@ python3 $DIR/TSV2VCF.py \
     --strand $STRAND \
     -variant_dist $DIST \
     -tmpdir $temp
+
+Rscript $DIR/Barcode_group_distribution.R \
+    -bd "${temp}/dp_freq.tsv" \
+    -out $temp
+
+Rscript $DIR/Plot_error_rate_22_11_2018.R \
+    -bc1 "${temp}/dedup_DP1.tsv" \
+    -bc2 "${temp}/dedup_DP2.tsv" \
+    -bc3 "${temp}/dedup_DP3.tsv" \
+    -bc4 "${temp}/dedup_DP4.tsv" \
+    -out $temp
