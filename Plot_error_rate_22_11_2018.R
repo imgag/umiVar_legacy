@@ -4,7 +4,7 @@ suppressPackageStartupMessages(library(argparse))
 suppressPackageStartupMessages(library(gridExtra))
 suppressPackageStartupMessages(library(grid))
 suppressPackageStartupMessages(library(scales))
-suppressPackageStartupMessages(library("seqinr")) 
+suppressPackageStartupMessages(library(seqinr)) 
 
 
 parser <- ArgumentParser()

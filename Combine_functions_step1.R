@@ -10,9 +10,7 @@ set.seed(07031992)
 ## suppress start messages of packages
 suppressPackageStartupMessages(library(VGAM))
 suppressPackageStartupMessages(library(data.table))
-#suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(argparse))
-suppressPackageStartupMessages(library(bbmle))
 suppressPackageStartupMessages(library(survcomp)) # Bioconductor 
 
 
