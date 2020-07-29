@@ -24,6 +24,7 @@ parser.add_argument('-d','--dist', default=5, help='Minimum distance allowed bet
 parser.add_argument('-ac','--ac', default=3, help='Minimum number of reads supporting a variant')
 parser.add_argument('-ns','--num_sites', default=-1, help='Number of sites to be analysed')
 parser.add_argument('-str','--strand', default=0, choices=['0','1'], help='Strand filter activation. 0 for desactivating the filter. Default [1]')
+parser.add_argument('-t', '--temp_dir', default='$PWD', help='Temporary directory')
 EOF
 
 echo Parameters:
@@ -44,7 +45,7 @@ tumor_id=$(basename $BAM .bam)
 
 out_dir=$(dirname $OUT_FILE)
 mkdir -p $out_dir
-temp=$(mktemp -p $out_dir -d cfdna_tmp.XXXX)
+temp=$(mktemp -p $TEMP_DIR -d cfdna_tmp.XXXX)
 
 python3 $DIR/split_bam.py --infile $BAM --outprefix "${temp}/dedup" --freq "${temp}/dp_freq.tsv"
 for f in ${temp}/dedup*.bam; do
