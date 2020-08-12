@@ -2,7 +2,11 @@
 
 # cfDNA variant caller
 
-set -e -u -o pipefail
+set -e -o pipefail
+
+# use conda environment
+source /mnt/share/opt/miniconda3/etc/profile.d/conda.sh
+conda activate cfdna
 
 # script directory
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
