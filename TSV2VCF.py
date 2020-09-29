@@ -175,8 +175,8 @@ DATE="##fileDate=%s" % date
 source="##source=CRG_UKT_somatic_variant_calling"
 reference="##reference=%s" % REF
 CONCEPTS="""##INFO=<ID=Variant_Dist,Number=1,Type=Integer,Description="Distance to the closest short variant">
-##INFO=<ID=Upstream,Type=String,Description="Upstream sequence (5 nucleotides)">
-##INFO=<ID=Downstream,Type=String,Description="Downstream sequence (5 nucleotides)">
+##INFO=<ID=Upstream,Number=.,Type=String,Description="Upstream sequence (5 nucleotides)">
+##INFO=<ID=Downstream,Number=.,Type=String,Description="Downstream sequence (5 nucleotides)">
 ##FILTER=<ID=PASS,Description="Passed filter">
 ##FILTER=<ID=Low_COV,Description="Low coverage">
 ##FILTER=<ID=Strand_imbalanced,Description="All alternative reads found in only one strand">

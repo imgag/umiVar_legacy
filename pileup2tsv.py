@@ -21,14 +21,14 @@ def similarity(a, b):
 
 def alt_qual_digit(variant, quality, DIG1,DIG2):
     if variant.upper() in DIG1:
-        DIG1[variant.upper()].append(int(quality/10))
-        DIG2[variant.upper()].append(int(quality%10))
+        DIG1[variant.upper()].append(int(int(quality)/10))
+        DIG2[variant.upper()].append(int(int(quality)%10))
     else:
         DIG1[variant.upper()] = list()
         DIG2[variant.upper()] = list()
     
-        DIG1[variant.upper()].append(quality/10)
-        DIG2[variant.upper()].append(quality%10)
+        DIG1[variant.upper()].append(int(int(quality)/10))
+        DIG2[variant.upper()].append(int(int(quality)%10))
     
     return (DIG1, DIG2)
 
@@ -143,6 +143,9 @@ def pileup_INFO(line):
         # Mismatch
         elif base in 'ATCGatcg':
             base_quality = ord(qualities[q_pos]) - 33
+            # use mismatch base quality if first base is a mismatch:
+            if keep_base_quality == '':
+                keep_base_quality = base_quality
             if base_quality >= minBQ:
                 alt_counts[base] += 1
                 alt_quals[base] += base_quality
@@ -248,9 +251,9 @@ def pileup_INFO(line):
             STRAND = FWD_RVS_STRAND(del_observed) ## To know the strand (Foward or reverse)
             
             del_observed=del_observed.upper() ## With this command we cannot ditinguish between strands
-            
+
             del_quals_digit1, del_quals_digit2 = alt_qual_digit(del_observed, keep_base_quality, del_quals_digit1, del_quals_digit2)
-            
+
             if del_observed in deletion:
                 deletion[del_observed] += 1
                 del_quals[del_observed] += keep_base_quality
