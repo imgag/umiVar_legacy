@@ -26,7 +26,7 @@ def FrequentBase(s):
     
     return(PERC)
 
-def Up_Down_sequence(CHROM, START, N, infile):
+def Up_Down_sequence(CHROM, START, N, infile, chr_length = -1):
     # As it works with 0-based coordinates, we must subtract 1 base to our start coordinate
     START = int(START)
     START = START-1
@@ -34,28 +34,37 @@ def Up_Down_sequence(CHROM, START, N, infile):
     ## Upstream
     start = str(START)
     end = str(START - N + 1)
-    
-    ## Getting sequence downstream
-    a = pybedtools.BedTool("\t".join([CHROM, end, start]), from_string=True)
-    a = a.sequence(fi=infile)
-    
-    J = open(a.seqfn).read()
-    J = J.rstrip('\n')
-    
-    # Sequence
-    SEQ_up = J.split('\n')[1]
+
+    ## return 'N'-sequence if interval extends over chromosome bounds
+    if int(end) < 1:
+        SEQ_up = 'N' * N
+    else:
+        ## Getting sequence downstream
+        a = pybedtools.BedTool("\t".join([CHROM, end, start]), from_string=True)
+        a = a.sequence(fi=infile)
+
+        J = open(a.seqfn).read()
+        J = J.rstrip('\n')
+
+        # Sequence
+        SEQ_up = J.split('\n')[1]
+
     
     ## Downstream
     start = str(START + 1)
     end = str(START + N)
-    
-    # Getting sequence upstream
-    a = pybedtools.BedTool("\t".join([CHROM, start, end]), from_string=True)
-    a = a.sequence(fi=infile)
-    
-    J = open(a.seqfn).read()
-    J = J.rstrip('\n')
-    SEQ_down = J.split('\n')[1]
+
+    ## return 'N'-sequence if interval extends over chromosome bounds
+    if chr_length != -1 and int(end) > chr_length:
+        SEQ_down = 'N' * N
+    else:
+        # Getting sequence upstream
+        a = pybedtools.BedTool("\t".join([CHROM, start, end]), from_string=True)
+        a = a.sequence(fi=infile)
+
+        J = open(a.seqfn).read()
+        J = J.rstrip('\n')
+        SEQ_down = J.split('\n')[1]
     
     # List of sequences
     LIST = [SEQ_up, SEQ_down]
@@ -182,8 +191,8 @@ CONCEPTS="""##INFO=<ID=Variant_Dist,Number=1,Type=Integer,Description="Distance 
 ##FILTER=<ID=Strand_imbalanced,Description="All alternative reads found in only one strand">
 ##FILTER=<ID=Low_AC,Description="Less than defined minimum of alternative counts">
 ##FILTER=<ID=Clustered_Variant,Description="Clustered variants">
-##FILTER=<ID=LC_Upstream,Description="Low complexity region (5bps) upstream. >= 80% of bases show the same nucleotide or tandem of >= 3 equal nucleotides in a row">
-##FILTER=<ID=LC_Downstream,Description="Low complexity region (5bps) downstream. >= 80% of bases show the same nucleotide  or tandem of >= 3 equal nucleotides in a row">
+##FILTER=<ID=LC_Upstream,Description="Low complexity region (5bps) upstream. ≥ 80% of bases show the same nucleotide or tandem of ≥ 3 equal nucleotides in a row">
+##FILTER=<ID=LC_Downstream,Description="Low complexity region (5bps) downstream. ≥ 80% of bases show the same nucleotide  or tandem of ≥ 3 equal nucleotides in a row">
 ##FILTER=<ID=Error,Description="Alternative counts inside the expected error rate distribution">
 ##FILTER=<ID=Fisher_Strand,Description="Strand bias based on fisher test">
 ##FILTER=<ID=Low_qual_pos,Description="Position enriched with too many low quality bases">
@@ -221,6 +230,17 @@ OUT_tsv.write(TSV_HEADER + '\n')
 VCF_HEADER = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER', 'INFO', 'FORMAT', SAMPLE]
 
 MRD = []
+
+## Load reference Fasta index to determine chr lengths
+chr_lengths = {}
+if Path(args.reference + ".fai").exists():
+    with open(args.reference + ".fai", 'r') as fasta_index_file:
+        for line in fasta_index_file.readlines():
+            split_line = line.split('\t')
+            chr_lengths[split_line[0].strip()] = int(split_line[1].strip())
+else:
+    print("WARNING: No FASTA index file found! Can't determine chromosome lengths.")
+
 
 with open(FILE) as f1:
     for i in f1:
@@ -312,9 +332,15 @@ with open(FILE) as f1:
             DP_HQ = int(info[DP_HQi])
             QUAL = '.'
             DIST = info[DISTi]
-            
+
+            # Determine length of the current chromosome
+            chr_length = -1
+            if chr_lengths != {}:
+                if CHROM in chr_lengths.keys():
+                    chr_length = chr_lengths[CHROM]
+
             # Getting 5 bases up and downstream
-            Seq_up, Seq_down = Up_Down_sequence(CHROM, POS, 6, args.reference)
+            Seq_up, Seq_down = Up_Down_sequence(CHROM, POS, 6, args.reference, chr_length)
             
             # Read count info
             call = info[CALLi]

@@ -3,15 +3,15 @@
 ##source=CRG_UKT_somatic_variant_calling
 ##reference=/mnt/share/data/genomes/GRCh37.fa
 ##INFO=<ID=Variant_Dist,Number=1,Type=Integer,Description="Distance to the closest short variant">
-##INFO=<ID=Upstream,Type=String,Description="Upstream sequence (5 nucleotides)">
-##INFO=<ID=Downstream,Type=String,Description="Downstream sequence (5 nucleotides)">
+##INFO=<ID=Upstream,Number=.,Type=String,Description="Upstream sequence (5 nucleotides)">
+##INFO=<ID=Downstream,Number=.,Type=String,Description="Downstream sequence (5 nucleotides)">
 ##FILTER=<ID=PASS,Description="Passed filter">
 ##FILTER=<ID=Low_COV,Description="Low coverage">
 ##FILTER=<ID=Strand_imbalanced,Description="All alternative reads found in only one strand">
 ##FILTER=<ID=Low_AC,Description="Less than defined minimum of alternative counts">
 ##FILTER=<ID=Clustered_Variant,Description="Clustered variants">
-##FILTER=<ID=LC_Upstream,Description="Low complexity region (5bps) upstream. >= 80% of bases show the same nucleotide or tandem of >= 3 equal nucleotides in a row">
-##FILTER=<ID=LC_Downstream,Description="Low complexity region (5bps) downstream. >= 80% of bases show the same nucleotide  or tandem of >= 3 equal nucleotides in a row">
+##FILTER=<ID=LC_Upstream,Description="Low complexity region (5bps) upstream. ≥ 80% of bases show the same nucleotide or tandem of ≥ 3 equal nucleotides in a row">
+##FILTER=<ID=LC_Downstream,Description="Low complexity region (5bps) downstream. ≥ 80% of bases show the same nucleotide  or tandem of ≥ 3 equal nucleotides in a row">
 ##FILTER=<ID=Error,Description="Alternative counts inside the expected error rate distribution">
 ##FILTER=<ID=Fisher_Strand,Description="Strand bias based on fisher test">
 ##FILTER=<ID=Low_qual_pos,Description="Position enriched with too many low quality bases">
