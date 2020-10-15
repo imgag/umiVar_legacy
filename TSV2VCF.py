@@ -186,6 +186,7 @@ reference="##reference=%s" % REF
 CONCEPTS="""##INFO=<ID=Variant_Dist,Number=1,Type=Integer,Description="Distance to the closest short variant">
 ##INFO=<ID=Upstream,Number=.,Type=String,Description="Upstream sequence (5 nucleotides)">
 ##INFO=<ID=Downstream,Number=.,Type=String,Description="Downstream sequence (5 nucleotides)">
+##INFO=<ID=PValue,Number=.,Type=String,Description="Uncorrected p-value">
 ##FILTER=<ID=PASS,Description="Passed filter">
 ##FILTER=<ID=Low_COV,Description="Low coverage">
 ##FILTER=<ID=Strand_imbalanced,Description="All alternative reads found in only one strand">
@@ -201,7 +202,7 @@ CONCEPTS="""##INFO=<ID=Variant_Dist,Number=1,Type=Integer,Description="Distance 
 ##FORMAT=<ID=AC,Number=.,Type=Integer,Description="Allele read counts"
 ##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
 ##FORMAT=<ID=AB,Number=1,Type=Float,Description="Allele balance">
-##FORMAT=<ID=Strand,Number=2,Type=String,Description="Alleles in strands: Alternative forward, Alternative reverseReference forward, Reference reverse">
+##FORMAT=<ID=Strand,Number=2,Type=String,Description="Alleles in strands: Alternative forward, Alternative reverse, Reference forward, Reference reverse">
 ##FORMAT=<ID=FS,Number=1,Type=Float,Description="Fisher strand test (q-value)">
 ##FORMAT=<ID=VCB,Number=1,Type=Integer,Description="Variant Count bias, number of other different alternative alleles found">
 ##FORMAT=<ID=Perror,Number=1,Type=Float,Description="Q-value to belong to the error rate distribution (beta binomial distribution) - After FDR correction">"""
@@ -234,7 +235,7 @@ MRD = []
 ## Load reference Fasta index to determine chr lengths
 chr_lengths = {}
 if Path(args.reference + ".fai").exists():
-    with open(args.reference + ".fai", 'r') as fasta_index_file:
+    with open(args.reference + ".fai", "rt") as fasta_index_file:
         for line in fasta_index_file.readlines():
             split_line = line.split('\t')
             chr_lengths[split_line[0].strip()] = int(split_line[1].strip())
@@ -244,7 +245,7 @@ else:
 
 with open(FILE) as f1:
     for i in f1:
-        line  =  i.rstrip('\n')
+        line = i.rstrip('\n')
         
         if line.startswith('##'):
             continue
@@ -373,10 +374,10 @@ with open(FILE) as f1:
                 n = len(ref)
                 
                 P_val_list = []
-                for count in range(0,n):
+                for count in range(0, n):
                     refi = ref[count]
                     if len(refi) != len(REF):
-                         # Sample info
+                        # Sample info
                         ALT_COUNT, DP_HQ, AB, REFt, ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq = TSV[count]
                         
                         # Getting normalized alternative allele
@@ -420,36 +421,39 @@ with open(FILE) as f1:
                         
                         P_val_list.append(float(ALT_COUNT_p))
 
-                # Common vcf columns
-                ALT = ','.join(ALT)
-                COMMON = [CHROM, POS, ID, REF, ALT, QUAL]
-                
-                # Filter column
-                FILTER = '|'.join(FILTER)
-                
-                # Format column
-                FORMAT = ["GT","Alt_Count","DP", "AB", "Strand", "FS", "VCB", "Pvcb", "Perror"]
-                
-                # Info column
-                INFO = ['Variant_dist='+str(DIST), 'Upstream='+str(Seq_up), 'Downstream='+str(Seq_down)]
-                
+                # get number of alt alleles
+                if len(ALT) != len(FILTER) or len(ALT) != len(sample) or len(ALT) != len(ALT_COUNT_all):
+                    raise ValueError("Number of alt alleles differs")
+
                 # Combine p-values of this site
                 P_merge = scipy.stats.combine_pvalues(P_val_list)[1]
                 MRD.append(float(P_merge))
-                
-                # VCF variant line
-                sample = '|'.join(sample)
-                VCF_LINE = ['\t'.join(COMMON), FILTER, ';'.join(INFO), ':'.join(FORMAT), sample]
-                VCF_LINE = '\t'.join(VCF_LINE)
-                
-                # TSV line
-                ALT_COUNT_all = ','.join(ALT_COUNT_all)
-                TSV_LINE = [str(CHROM), str(POS), str(REF), str(ALT), Seq_up, Seq_down, str(DP_HQ), str(REFt), str(ALT_COUNT_all), str(AB), ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq, FILTER]
-                TSV_LINE = '\t'.join(TSV_LINE)
 
-                if (int(ALT_COUNT) > 0):
-                    OUT_vcf.write(VCF_LINE + '\n')
-                    OUT_tsv.write(TSV_LINE + '\n')
+                # split multiallelic variants in single lines
+                for allele_idx in range(len(ALT)):
+                    # Common vcf columns
+                    COMMON = [CHROM, POS, ID, REF, ALT[allele_idx], QUAL]
+
+                    # Format column
+                    FORMAT = ["GT", "Alt_Count", "DP", "AB", "Strand", "FS", "VCB", "Pvcb", "Perror"]
+
+                    # Info column
+                    INFO = ['Variant_dist='+str(DIST), 'Upstream='+str(Seq_up), 'Downstream='+str(Seq_down),
+                            'PValue='+str(ALT_COUNT_p)]
+
+                    # VCF variant line
+                    VCF_LINE = ['\t'.join(COMMON), FILTER[allele_idx], ';'.join(INFO), ':'.join(FORMAT), sample[allele_idx]]
+                    VCF_LINE = '\t'.join(VCF_LINE)
+
+                    # TSV line
+                    TSV_LINE = [str(CHROM), str(POS), str(REF), str(ALT[allele_idx]), Seq_up, Seq_down, str(DP_HQ), str(REFt),
+                                str(ALT_COUNT_all[allele_idx]), str(AB), ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o,
+                                OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq, FILTER[allele_idx]]
+                    TSV_LINE = '\t'.join(TSV_LINE)
+
+                    if (int(ALT_COUNT) > 0):
+                        OUT_vcf.write(VCF_LINE + '\n')
+                        OUT_tsv.write(TSV_LINE + '\n')
                 
             else:
                 
@@ -460,15 +464,16 @@ with open(FILE) as f1:
                 
                 # Filter column
                 FILTER = filter[0]
-                
-                # Info column
-                INFO = ['Variant_dist='+str(DIST), 'Upstream='+str(Seq_up), 'Downstream='+str(Seq_down)]
-                
-                # Format column
-                FORMAT = ["GT","Alt_Count","DP", "AB", "Strand", "FS", "VCB", "Pvcb", "Perror"]
-                
+
                 # Sample info
                 ALT_COUNT, DP_HQ, AB, REFt, ALT_COUNT_p, ALT_COUNT_padj, STRAND, FISHER, ALT_COUNT_o, OUT_adj, Seq_Upstream_freq, Seq_Downstream_freq = TSV[0]
+                
+                # Info column
+                INFO = ['Variant_dist='+str(DIST), 'Upstream='+str(Seq_up), 'Downstream='+str(Seq_down),
+                        'PValue='+str(ALT_COUNT_p)]
+                
+                # Format column
+                FORMAT = ["GT", "Alt_Count", "DP", "AB", "Strand", "FS", "VCB", "Pvcb", "Perror"]
                 
                 # Append p-val for MRD calculation
                 MRD.append(float(ALT_COUNT_p))
@@ -498,7 +503,7 @@ OUT_tsv.close()
 ## MRD printing
 if (args.mrd == 1):
     out3 = str(Path(out).with_suffix('.mrd'))
-    OUT_mrd = open(out3,'w')
+    OUT_mrd = open(out3, 'w')
     
     # Header
     MRD_HEADER = ['#MRD_log10', 'MRD_pval']
