@@ -62,7 +62,7 @@ def pileup_INFO(line):
     locus, pos, ref_base, cov, bases, qualities = line.split("\t")
     
     keep_REF = ''
-    keep_base_quality = ''
+    keep_base_quality = 0
     
     pos = int(pos)
     cov = int(cov)
@@ -144,7 +144,7 @@ def pileup_INFO(line):
         elif base in 'ATCGatcg':
             base_quality = ord(qualities[q_pos]) - 33
             # use mismatch base quality if first base is a mismatch:
-            if keep_base_quality == '':
+            if keep_base_quality == 0:
                 keep_base_quality = base_quality
             if base_quality >= minBQ:
                 alt_counts[base] += 1
