@@ -60,6 +60,10 @@ def pileup_INFO(line):
         return "."
     
     locus, pos, ref_base, cov, bases, qualities = line.split("\t")
+
+    ##debug
+    # print(pos)
+    # print(line)
     
     keep_REF = ''
     keep_base_quality = 0
